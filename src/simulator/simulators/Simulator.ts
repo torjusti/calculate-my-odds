@@ -34,12 +34,14 @@ export class Simulator {
         const groupedGoals = groupGoals(probabilities, goals);
         let attempts = 0;
         
+        const totalProbability = probabilities.reduce((acc, item) => acc + item.probability!, 0);
+
         while (fulfilledGoals < goals.length) {
             const roll = Math.random();
             let nextCheckBase = 0;
             for (let i = 0; i < probabilities.length; i++) {
                 const item = probabilities[i];
-                const check = nextCheckBase + item.probability!;
+                const check = nextCheckBase + item.probability! / totalProbability;
                 if (roll < check) {
                     for (const goal of groupedGoals[i]) {
                         const completedBefore = checkGoalCompletion(counts[i], goal);
@@ -58,7 +60,7 @@ export class Simulator {
                 nextCheckBase = check;
             }
             
-            attempts++;
+            attempts += Math.ceil(Math.log(Math.random()) / Math.log(1 - totalProbability));
         }
         
         // TODO: Maybe change this at some point to ensure the
